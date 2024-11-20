@@ -1,7 +1,8 @@
 %% New and improved Capture the breaker seeder
 
 %% read in CSV of entrants
-allCompsCell = readcell('OldEntries.csv');
+allCompsCell = readcell('ctb2024.csv');
+allCompsCell = allCompsCell(2:end,:);
 competitors = allCompsCell(:,1);
 meanscoresPre = mean(cell2mat(allCompsCell(:,2:4)),2);
 %% Normalize the scores
@@ -28,15 +29,22 @@ sortnames = competitors(perm);
 multScores = sortScores * 4;
 top32 = floor(multScores(1:32));
 top32names = sortnames(1:32);
+shuffedScores = multScores(1:32);
 
 for i = min(top32):max(top32)
     shuffDex = top32==i;
     shuffnames = top32names(shuffDex);
-    shuffnames = shuffnames(randperm(length(shuffnames)));
+    shuffscores = multScores(shuffDex);
+    permutatrix = randperm(length(shuffnames));
+    shuffnames = shuffnames(permutatrix);
+    shuffscores = shuffscores(permutatrix);
     top32names(shuffDex) = shuffnames;
+    shuffedScores(shuffDex) = shuffscores;
 end
 
-visags = [top32names,num2cell(top32)];
+
+visags = [top32names,num2cell(top32),num2cell(shuffedScores)];
+visagsall = [sortnames,num2cell(floor(multScores)),num2cell(multScores)];
 
 %% Creating the bracket now
 fid = fopen('bracket.txt','w');
